@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donate to Community Pantry</title>
+    <style>
+        /* Basic styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .donate-form {
+            margin-top: 50px;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .thank-you-message {
+            font-size: 24px;
+            margin-top: 20px;
+            color: #28a745;
+        }
+        .donate-button {
+            background-color: #007BFF;
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .donate-button:hover {
+            background-color: #0056b3;
+        }
+        .top-donors {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="donate-form">
+        <h1>Donate to the Community Pantry</h1>
+        <form id="donateForm">
+            <input type="hidden" name="community_id" value="1"> <!-- Dynamic value -->
+            <input type="hidden" name="item_name" value="Food Item"> <!-- Dynamic value -->
+            <input type="number" name="quantity" placeholder="Enter quantity to donate" required>
+            <button type="submit" class="donate-button">Donate</button>
+        </form>
+    </div>
+
+    <div class="thank-you-message" id="thankYouMessage" style="display: none;">
+        Thank you for your donation! Your generosity helps others in need.
+    </div>
+
+    <div id="top-donors" class="top-donors">
+        <h2>Top Donors</h2>
+        <ul id="donorList"></ul>
+    </div>
+
+    <script>
+        // Function to submit the donation form via AJAX
+        document.getElementById('donateForm').addEventListener('submit', async function(event) {
+            event.preventDefault();  // Prevent the default form submission
+
+            const formData = new FormData(event.target);
+            const response = await fetch('donate.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Show thank you message
+                document.getElementById('thankYouMessage').style.display = 'block';
+
+                // Update the top donors list
+                loadTopDonors();
+            } else {
+                alert('Error processing donation. Please try again.');
+            }
+        });
+
+        // Function to load top donors list via AJAX
+        async function loadTopDonors() {
+            const response = await fetch('get_top_donors.php');
+            const donors = await response.json();
+
+            const donorList = document.getElementById('donorList');
+            donorList.innerHTML = ''; // Clear existing list
+
+            donors.forEach(donor => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${donor.donor_name} - ${donor.total_donated} items donated`;
+                donorList.appendChild(listItem);
+            });
+        }
+    </script>
+
+</body>
+</html>
